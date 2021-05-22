@@ -1,0 +1,102 @@
+<?php
+$ctg=$_GET['ctg'];
+$time=$_GET['time'];
+$b_time=$_GET['b_time'];
+$e_time=$_GET['e_time'];
+$ref_counts=$_GET['ref_counts'];
+$run_time=$_GET['run_time'];
+$path="/nfs/data1/NGStools/cache/BlastToLandmark/";
+$hit_file=$path.$time.'/best3hits.txt';
+$ref_file=$path.$time.'/ref.txt';
+$hit_size=filesize($hit_file);
+$ref_size=filesize($ref_file);
+if($hit_size!=0){
+  $hit_data=file_get_contents($hit_file);
+  $hit_array=explode("\n",$hit_data);
+  $num=count($hit_array)-1;
+    for($e=0;$e<$num;$e++){
+      $hit[$e]=explode("\t",$hit_array[$e]);
+     }
+      $best3="";
+    for($e=0;$e<$num;$e++){
+      $hithit =$hit[$e];
+      $saccver=$hithit[0];
+      $describe=$hithit[1];
+      $evalue=$hithit[2];
+      $pident=$hithit[3];
+      $score=$hithit[4];
+      $best3 .="<tr style=color:#008888><td>$saccver</td><td>$describe</td><td align=center>$evalue</td><td align=center>$pident</td><td align=center>$score</td></tr>";
+     }
+   }else{
+ $best3="<tr><td colspan=5>no blastp result...</td></tr>";
+}   
+if($ref_size!=0){
+$content=file_get_contents($ref_file);
+ $ref=explode("\n",$content);
+ //print_r($ref);
+ //print_r($ref[0]."\n");//列出第一筆refernece
+ $i=count($ref)-1;
+ //print($i."\n");
+  for($j=0;$j<$i;$j++){
+    $ref[$j]=explode("\t",$ref[$j]);
+    //print_r($ref[$j]);
+}
+ $html="";
+  for($j=0;$j<$i;$j++){
+   $PMID=$ref[$j][0];
+   $PubDate=$ref[$j][1];
+   $Title=$ref[$j][2];
+   $html .="<tr style=color:#008888><td>$PMID</td><td>$PubDate</td><td><a href=$PMID/ target=_blank>$Title</a></td></tr>";
+}
+
+   }else{
+$html="<tr><td colspan=3>no reference...</td></tr>";
+}
+?>
+<!DOCTYPE html>
+<html style=background-color:honeydew>
+   <head>
+      <title>Reference paper from PubMed Database</title>
+      <base href="http://pubmed.ncbi.nlm.nih.gov/">
+     <style>
+      a{text-decoration:none}
+      a:link{color:#008888}
+      a:visited{color:#8B008B}
+      a:hover{color:#008844}
+     </style>
+   </head>
+   <body>
+      <ul>
+      <table width=1350 height=70 border=0 align=center style=font-size:28px;color:#444444;position:relative;top:50px>
+               <tr><th align=left width=900>References for Contig <?php echo $ctg;?></th><th style=font-size:16px;text-align:right><div style=position:absolute;bottom:0px;right:45px> Total running time : <?php echo $run_time;?> secs<br>Blast & Searching references used : <?php echo $b_time;?> and <?php echo $e_time;?> secs</br></div></th></tr></table>
+      <div>
+      <table border=0 width=1300 cellpadding=8 align=center style=font-size:20px;position:relative;top:60px>
+       <tr style=font-size:24px;color:#007799>
+        <th colspan=3 align=left><li type="square">Besthits with NCBI Landmark database</li></th>
+       </tr>
+       <tr style=font-size:22px;color:#008888>
+         <th width=300 align=left>Accession number in NCBI</th>
+         <th width=600 align=left>Descriptions</th>
+         <th width=100 >E-value</th>
+         <th width=200 >Identity (%)</th>
+         <th width=100 >Bitscore</th>
+       </tr>
+        <?php echo $best3;?>
+      </table>
+      </div>
+      <div>
+      <table border=0 width=1300 cellpadding=8 align=center style=font-size:20px;position:relative;top:70px>
+       <tr style=font-size:24px;color:#007799>
+         <th colspan=3 align=left><li type=square>References : <?php echo $ref_counts;?> results</li></th>
+       </tr>
+       <tr style=font-size:22px;color:#008888>
+         <th width=150 align=left>PubMed ID</th>
+         <th width=180 align=left>Publication Date</th>
+         <th width=970>Title</th>
+      </tr>
+        <?php echo $html;?>
+      </table>
+      </div>
+      </ul>
+   </body>
+</html>

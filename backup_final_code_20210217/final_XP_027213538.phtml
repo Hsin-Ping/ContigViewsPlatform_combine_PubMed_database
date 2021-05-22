@@ -1,0 +1,61 @@
+<html>
+<head>
+  <Title>a.a_page</Title>
+  <script src="jquery-1.11.2.min.js" type="text/javascript"></script><!--for_use_jquery_libaray-->
+  <script src="jquery.form.min.js" type="text/javascript"></script><!--for_use_form_function-->
+</head> 
+<body>
+    <h2 id="ref_name">XP_027213538 - complete</h2><button id="button">search pubmed by model species' homologues</button><!--simulate_CV_that_Contig_name_is_in_h2_tag-->
+   <div class="widgets-content sequence-area-aa" style="display:none">
+   <p Cols=90 Rows=10 class="sequence">
+MGNCFSSNSGTGKKDSTISDSRSIASPNNIFTEQVQSPPMTGPTISDPSGAVRGPADSHPLGGRPMNGLNPTLPSLPDPE
+GTAATLSKIFVALYDYDARTDEDLSFKKGEHLEILNDTQGDWWFARSKATKQEGYIPSNYVAKLKSIEAEPWYFGKIKRI
+EAEKKLLLPENEHGAFLIRDSESRRNDYSLSVRDGDTVKHYRIRQLDEGGFFIARRTTFRTLQELVEHYSKDADGLCVNL
+RKPCIQAIEKPVTAGLSHNTRDQWEIDRSSLKFVRKLGHGQFGEVWEGLWNNTTPVAIKTLKPGTMDPKDFLSEAQIMKK
+LRHQKLIQLYAVCTLEEPIYIITELMKNGSLLEYLQGKGRGLKLNNLIDMAAQIAAGMAYLESQNYIHRDLAARNVLVGD
+SNIVKIADFGLARLIKEDEYEARVGARFPIKWTAPEAANYSKFSIKSDVWSFGILLTELITYGRIPYPGMTNAEVLHQVE
+HGYRMPPPPGCPPALYDIMVECWHKDPMKRPTFETLQWKLEDFFTLEGSEYKEAAVAY*
+</p>
+  </div><!--classname1 is widgets-contetnt & classname2 is sequence-area-aa & hide this div tag content-->
+<div style="position: fixed; width: 100%; text-align: center; height: 100%; top: 25%;">
+<img id="loading" width="500" height="500" src="http://140.112.165.120/hsinping/gif/66.gif"></div>
+
+<form id="all" name="all_data" style="display:none"><textarea id="all_t" name="all_data_t"></textarea></form>
+  <form><textarea id="check" cols=100 rows=50></textarea></form>
+
+  <script type="text/javascript">//javascript_start
+  $("#loading").hide();
+  $("#button").click(function(){
+ var peptide_seq=$(".sequence-area-aa:eq(0) .sequence").text(); 
+ var ctg_name_full=document.getElementById("ref_name").innerHTML;
+ var space=ctg_name_full.search(" ");
+ var ctg_name_only=ctg_name_full.substr(0,space);
+ document.getElementById("all_t").innerHTML=">"+ctg_name_only+peptide_seq;
+     $("#all").ajaxSubmit({
+          type: "post",
+          url: "post_pep.php",
+          beforeSubmit: function(){$("#loading").show();},
+          success: function(data){
+             $("#loading").hide();
+            var dd=data.split("\n");
+            //alert(dd);
+            //alert(ctg_name_only);
+            var b=dd[0].split(": ")[1].substr(0,4);
+            var e=dd[1].split(": ")[1].substr(0,4);
+            var counts=dd[2].split(": ")[1];
+            var runtime=dd[3].split(": ")[1].substr(0,5);
+            document.getElementById("check").innerHTML=data;
+            var params = data.split("params:")[1];
+            window.location.href="ref_webpage.phtml?ctg="+ctg_name_only+"&time="+params+"&b_time="+b+"&e_time="+e+"&ref_counts="+counts+"&run_time="+runtime;
+             },
+              error: function(jqXHR,errorThrown){
+                alert("error");
+                  },   
+           });
+return false;
+
+});
+</script>
+  </body>
+</html>
+
